@@ -1,4 +1,4 @@
-package com.buje.app.ws.mobileappws;
+package com.buje.app.ws.mobileappws.io.repositories;
 
 import com.buje.app.ws.mobileappws.io.entity.UserEntity;
 import org.springframework.data.repository.CrudRepository;
