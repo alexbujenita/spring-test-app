@@ -1,10 +1,12 @@
 package com.buje.app.ws.mobileappws.service.impl;
 
+import com.buje.app.ws.mobileappws.exceptions.UserServiceException;
 import com.buje.app.ws.mobileappws.io.repositories.UserRepository;
 import com.buje.app.ws.mobileappws.io.entity.UserEntity;
 import com.buje.app.ws.mobileappws.service.UserService;
 import com.buje.app.ws.mobileappws.shared.Utils;
 import com.buje.app.ws.mobileappws.shared.dto.UserDto;
+import com.buje.app.ws.mobileappws.ui.model.response.ErrorMessages;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
@@ -53,7 +55,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getUser(String email) {
         UserEntity userEntity = userRepository.findByEmail(email);
-        if(userEntity == null) throw  new UsernameNotFoundException(email);
+        if(userEntity == null) throw new UsernameNotFoundException(email);
         UserDto returnValue = new UserDto();
         BeanUtils.copyProperties(userEntity, returnValue);
         return returnValue;
@@ -63,8 +65,23 @@ public class UserServiceImpl implements UserService {
     public UserDto getUserByUserId(String userId) {
         UserDto returnValue = new UserDto();
         UserEntity userEntity = userRepository.findByUserId(userId);
-        if(userEntity == null) throw  new UsernameNotFoundException(userId);
+        if(userEntity == null) throw new UsernameNotFoundException(userId);
         BeanUtils.copyProperties(userEntity, returnValue);
+        return returnValue;
+    }
+
+    @Override
+    public UserDto updateUser(String userId, UserDto user) {
+        UserDto returnValue = new UserDto();
+        UserEntity userEntity = userRepository.findByUserId(userId);
+        if(userEntity == null) throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+
+        userEntity.setFirstName(user.getFirstName());
+        userEntity.setLastname(user.getLastname());
+
+        UserEntity updatedUserDetails = userRepository.save(userEntity);
+        BeanUtils.copyProperties(updatedUserDetails, returnValue);
+
         return returnValue;
     }
 
@@ -72,7 +89,7 @@ public class UserServiceImpl implements UserService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         UserEntity userEntity = userRepository.findByEmail(email);
 
-        if(userEntity == null) throw  new UsernameNotFoundException(email);
+        if(userEntity == null) throw new UsernameNotFoundException(email);
 
         return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), new ArrayList<>());
     }
