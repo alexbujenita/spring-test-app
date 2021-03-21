@@ -15,6 +15,10 @@ public class Utils {
         return this.generateRandomString(length);
     }
 
+    public String generateAddressId(int length) {
+        return this.generateRandomString(length);
+    }
+
     private String generateRandomString(int length) {
         StringBuilder returnValue = new StringBuilder(length);
 

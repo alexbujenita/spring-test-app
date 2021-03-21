@@ -5,8 +5,10 @@ import com.buje.app.ws.mobileappws.io.repositories.UserRepository;
 import com.buje.app.ws.mobileappws.io.entity.UserEntity;
 import com.buje.app.ws.mobileappws.service.UserService;
 import com.buje.app.ws.mobileappws.shared.Utils;
+import com.buje.app.ws.mobileappws.shared.dto.AddressDTO;
 import com.buje.app.ws.mobileappws.shared.dto.UserDto;
 import com.buje.app.ws.mobileappws.ui.model.response.ErrorMessages;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -39,8 +41,16 @@ public class UserServiceImpl implements UserService {
         // if we remove the unique = true in UserEntity
         if(userRepository.findByEmail(user.getEmail()) != null) throw new RuntimeException("Record already exists.");
 
-        UserEntity userEntity = new UserEntity();
-        BeanUtils.copyProperties(user, userEntity);
+        for(int i = 0; i < user.getAddresses().size(); i++) {
+            AddressDTO address = user.getAddresses().get(i);
+            address.setUserDetails(user);
+            address.setAddressId(utils.generateAddressId(30));
+            user.getAddresses().set(i, address);
+        }
+
+//        BeanUtils.copyProperties(user, userEntity);
+        ModelMapper modelMapper = new ModelMapper();
+        UserEntity userEntity = modelMapper.map(user, UserEntity.class);
 
         String publicUserId = utils.generateUserId(30);
         String encryptedPassword = bCryptPasswordEncoder.encode(user.getPassword());
@@ -49,10 +59,7 @@ public class UserServiceImpl implements UserService {
         userEntity.setUserId(publicUserId);
 
         UserEntity storedUserDetails = userRepository.save(userEntity);
-        UserDto returnValue = new UserDto();
-
-        BeanUtils.copyProperties(storedUserDetails, returnValue);
-
+        UserDto returnValue = modelMapper.map(storedUserDetails, UserDto.class);
         return returnValue;
     }
 

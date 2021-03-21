@@ -1,10 +1,21 @@
 package com.buje.app.ws.mobileappws.ui.model.request;
 
+import java.util.List;
+
 public class UserDetailsRequestModel {
     private String firstName;
     private String lastname;
     private String email;
     private String password;
+    private List<AddressRequestModel> addresses;
+
+    public List<AddressRequestModel> getAddresses() {
+        return addresses;
+    }
+
+    public void setAddresses(List<AddressRequestModel> addresses) {
+        this.addresses = addresses;
+    }
 
     public String getFirstName() {
         return firstName;
